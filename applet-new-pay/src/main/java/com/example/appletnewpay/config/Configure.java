@@ -7,14 +7,13 @@ package com.example.appletnewpay.config;
  **/
 public class Configure {
     // 商户支付秘钥
-    private static String key = "xxxxxxNOBVmszxxxxxxxxxxxxxxxxxxx";
-
+    private static String key = "";
     //小程序ID
-    private static String appID = "wx42ebbFFFFFFFFFF";
+    private static String appID = "";
     //商户号
-    private static String mch_id = "1499111112";
+    private static String mch_id = "";
     // 小程序的secret
-    private static String secret = "xxxxxxxxxxxxxxxxxxx";
+    private static String secret = "";
 
     public static String getSecret() {
         return secret;

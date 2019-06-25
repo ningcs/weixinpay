@@ -14,6 +14,7 @@ import java.util.Map;
  * @create: 2019-06-25 14:53
  **/
 public class Signature {
+
     /**
      * 签名算法
      * @param o 要参与签名的数据对象

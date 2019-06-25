@@ -11,12 +11,11 @@ import com.example.appletnewpay.utils.PayUtil;
 import com.example.appletnewpay.utils.RandomStringGenerator;
 import com.example.appletnewpay.utils.Signature;
 import com.thoughtworks.xstream.XStream;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +37,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/v1")
 @Slf4j
+@Api("支付")
 public class PayController {
 
     private static final long serialVersionUID = 1L;
@@ -54,10 +54,8 @@ public class PayController {
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping(
-            value = "/weixin/payment",
-            method = RequestMethod.POST
-    )
+    @ApiOperation("统一下单")
+    @PostMapping("/weixin/payment")
     public Map payment(@Valid @RequestBody NewWXOrderRequest request, HttpServletRequest httpServletRequest) {
         Map map = new HashMap();
         String money = "10";
@@ -76,7 +74,7 @@ public class PayController {
             order.setTrade_type(trade_type);
             order.setOpenid(request.getOpenId());
             order.setSign_type("MD5");
-//生成签名
+            //生成签名
             String sign = Signature.getSign(order);
             order.setSign(sign);
 
@@ -86,7 +84,7 @@ public class PayController {
             xStream.alias("xml", OrderReturnInfo.class);
 
             OrderReturnInfo returnInfo = (OrderReturnInfo) xStream.fromXML(result);
-// 二次签名
+            // 二次签名
             if ("SUCCESS".equals(returnInfo.getReturn_code()) && returnInfo.getReturn_code().equals(returnInfo.getResult_code())) {
                 SignInfo signInfo = new SignInfo();
                 signInfo.setAppId(Configure.getAppID());
@@ -95,7 +93,7 @@ public class PayController {
                 signInfo.setNonceStr(RandomStringGenerator.getRandomStringByLength(32));
                 signInfo.setRepay_id("prepay_id=" + returnInfo.getPrepay_id());
                 signInfo.setSignType("MD5");
-//生成签名
+                //生成签名
                 String sign1 = Signature.getSign(signInfo);
                 Map payInfo = new HashMap();
                 payInfo.put("timeStamp", signInfo.getTimeStamp());
@@ -130,7 +128,7 @@ public class PayController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/weixin/callback")
+    @PostMapping(value = "/weixin/callback")
     public void wxNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader((ServletInputStream) request.getInputStream()));
         String line = null;
