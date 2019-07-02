@@ -2,16 +2,20 @@ package com.example.appletpay.controller;
 
 import com.example.appletpay.constant.Constant;
 import com.example.appletpay.entity.PayInfo;
-import com.example.appletpay.util.CommonUtil;
-import com.example.appletpay.util.HttpUtil;
-import com.example.appletpay.util.TimeUtils;
+import com.example.appletpay.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,87 +29,87 @@ import java.util.Map;
 public class AppletPayController {
 
 
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/prepay", produces = "text/html;charset=UTF-8")
-//    public String prePay(String code, ModelMap model, HttpServletRequest request) {
-//
-//        String content = null;
-//        Map map = new HashMap();
-//        ObjectMapper mapper = new ObjectMapper();
-//
-//        boolean result = true;
-//        String info = "";
-//
-//        log.error("\n======================================================");
-//        log.error("code: " + code);
-//
-//        String openId = getOpenId(code);
-//        if(StringUtils.isBlank(openId)) {
-//            result = false;
-//            info = "获取到openId为空";
-//        } else {
-//            openId = openId.replace("\"", "").trim();
-//
-//            String clientIP = CommonUtil.getClientIp(request);
-//
-//            log.error("openId: " + openId + ", clientIP: " + clientIP);
-//
-//            String randomNonceStr = RandomUtils.generateMixString(32);
-//            String prepayId = unifiedOrder(openId, clientIP, randomNonceStr);
-//
-//            log.error("prepayId: " + prepayId);
-//
-//            if(StringUtils.isBlank(prepayId)) {
-//                result = false;
-//                info = "出错了，未获取到prepayId";
-//            } else {
-//                map.put("prepayId", prepayId);
-//                map.put("nonceStr", randomNonceStr);
-//            }
-//        }
-//
-//        try {
-//            map.put("result", result);
-//            map.put("info", info);
-//            content = mapper.writeValueAsString(map);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return content;
-//    }
-//
-//
-//    private String getOpenId(String code) {
-//        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + Constant.APP_ID +
-//                "&secret=" + Constant.APP_SECRET + "&js_code=" + code + "&grant_type=authorization_code";
-//
-//        HttpUtil httpUtil = new HttpUtil();
-//        try {
-//
-//            HttpResult httpResult = httpUtil.doGet(url, null, null);
-//
-//            if(httpResult.getStatusCode() == 200) {
-//
-//                JsonParser jsonParser = new JsonParser();
-//                JsonObject obj = (JsonObject) jsonParser.parse(httpResult.getBody());
-//
-//                log.error("getOpenId: " + obj.toString());
-//
-//                if(obj.get("errcode") != null) {
-//                    log.error("getOpenId returns errcode: " + obj.get("errcode"));
-//                    return "";
-//                } else {
-//                    return obj.get("openid").toString();
-//                }
-//                //return httpResult.getBody();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return "";
-//    }
+
+    @ResponseBody
+    @RequestMapping(value = "/prepay", produces = "text/html;charset=UTF-8")
+    public String prePay(String code, ModelMap model, HttpServletRequest request) {
+
+        String content = null;
+        Map map = new HashMap();
+        ObjectMapper mapper = new ObjectMapper();
+
+        boolean result = true;
+        String info = "";
+
+        log.error("\n======================================================");
+        log.error("code: " + code);
+
+        String openId = getOpenId(code);
+        if(StringUtils.isBlank(openId)) {
+            result = false;
+            info = "获取到openId为空";
+        } else {
+            openId = openId.replace("\"", "").trim();
+
+            String clientIP = CommonUtil.getClientIp(request);
+
+            log.error("openId: " + openId + ", clientIP: " + clientIP);
+
+            String randomNonceStr = RandomUtils.generateMixString(32);
+            String prepayId = unifiedOrder(openId, clientIP, randomNonceStr);
+
+            log.error("prepayId: " + prepayId);
+
+            if(StringUtils.isBlank(prepayId)) {
+                result = false;
+                info = "出错了，未获取到prepayId";
+            } else {
+                map.put("prepayId", prepayId);
+                map.put("nonceStr", randomNonceStr);
+            }
+        }
+
+        try {
+            map.put("result", result);
+            map.put("info", info);
+            content = mapper.writeValueAsString(map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return content;
+    }
+
+
+    private String getOpenId(String code) {
+        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + Constant.APP_ID +
+                "&secret=" + Constant.APP_SECRET + "&js_code=" + code + "&grant_type=authorization_code";
+
+        HttpUtil httpUtil = new HttpUtil();
+        try {
+
+            HttpResult httpResult = httpUtil.doGet(url, null, null);
+
+            if(httpResult.getStatusCode() == 200) {
+
+                JsonParser jsonParser = new JsonParser();
+                JsonObject obj = (JsonObject) jsonParser.parse(httpResult.getBody());
+
+                log.error("getOpenId: " + obj.toString());
+
+                if(obj.get("errcode") != null) {
+                    log.error("getOpenId returns errcode: " + obj.get("errcode"));
+                    return "";
+                } else {
+                    return obj.get("openid").toString();
+                }
+                //return httpResult.getBody();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     /**
      * 调用统一下单接口
