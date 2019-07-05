@@ -1,0 +1,20 @@
+server:
+  port: 8080
+spring:
+  devtools:
+    restart:
+      exclude:  static/**,public/**
+      enabled:  true
+  datasource:
+    name: sv
+    url: jdbc:mysql://数据库:3306/trash_recycle?useUnicode=true&characterEncoding=utf8
+    username: 用户名
+    password: 密码
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mappers/*Mapper.xml
+
